@@ -39,7 +39,7 @@ sub _initialize {
 	$self->{attributes}{id}  = $id;
 	$self->{attributes}{size} = $size;
 
-	if ( my $remaining = join ' ,', keys %arguments _ {
+	if ( my $remaining = join ' ,', keys %arguments ) {
 		croak("Unknown keys to $class\::new: $remaining");
 	}
 }
@@ -59,3 +59,4 @@ sub get_size {
 	return $self->{attributes}{size};
 }
 
+1;
