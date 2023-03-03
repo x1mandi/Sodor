@@ -7,12 +7,32 @@ use v5.14;
 use Data::Dumper;
 
 use lib 'lib';
-use My::Trains::Train;
+use My::Trains::Engine;
 
-my $thomas = Train->new({
+my $thomas = Engine->new({
 	name => 'Thomas',
 	id => 1,
+	type => 'shunter',
 	size => 'small'
 });
 
-say $thomas->get_name(); 
+say $thomas->as_string();
+
+my $henry = Engine->new({
+	name => 'Henry',
+	id => 3,
+	type => 'freight',
+	size => 'large'
+});
+
+say $thomas->as_string();
+say $henry->as_string();
+
+$henry->couple_train({
+	name => 'The Flying Kipper',
+	type => 'freight',
+	length => 6
+});
+
+say $henry->as_string();
+

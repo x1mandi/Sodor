@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use v5.14;
 use Carp qw(carp croak);
-
+use Data::Dumper;
 
 
 sub new {
@@ -43,7 +43,7 @@ sub _initialize {
 	if ( !defined $type ) { 
 		croak("$class requires a size to be set.");
 	}
-	elsif ( $type =~ /(shunter|passenger|freight)/gi ) {
+	elsif ( $type !~ /(shunter|passenger|freight)/gi ) {
 		croak("Invalid engine type for $class. Type should be one of shunter|passenger|freight");
 	}
 	
@@ -52,7 +52,7 @@ sub _initialize {
 	$self->{size} = lc( $size ); #make size lowercase to avoid complications
 	$self->{type} = lc( $type );
 	
-	$self->_set_max_train_length();
+	$self->_set_max_length();
 
 	if ( my $remaining = join ' ,', keys %arguments ) {
 		croak("Unknown keys to $class\::new: $remaining");
@@ -62,6 +62,7 @@ sub _initialize {
 sub get_name {
 	my $self = shift;
 	return $self->{name};
+
 }
 
 sub get_id {
@@ -92,7 +93,7 @@ sub _set_max_length {
 
 sub get_max_length {
 	my $self = shift;
-	return $self->{max_train_length};
+	return $self->{max_length};
 }
 
 #Method to get current length
@@ -113,8 +114,8 @@ sub get_length {
 sub get_train_info {
 	my $self = shift;
 	my $length = $self->get_length();
-	my %train =  $self->{train};
-	return %train;
+	my $train =  $self->{train};
+	return $train;
 }
 
 sub couple_train {
@@ -122,18 +123,30 @@ sub couple_train {
 	my %vehicles = %$vehicles;
 	my $max_length = $self->get_max_length;
 
-	#Vehicle name is not mandatory, but raise error anyway
-	$self->{train}{name} = delete $vehicles{name} if ( defined  $vehicles{name} );
+	#Vehicle name is not mandatory, but raise a warning anyway
+	my $name = delete $vehicles{name};
+	my $type = delete $vehicles{type};
+	my $length = delete $vehicles{length};
 
-	if ( !defined $vehicles{type} && $vehicles{type} !~ /passenger|freight/gi ) {
-		croak("Train type not specified, must be passenger|freight!");
-	}
-		
-	if ( $vehicles{length} > $max_length ) {
-		carp("WARNING! $self->get_name() is a $self->get_size() locomotive, please look for a bigger train!")
-	} else {
-		$self->{train}{length} = $vehicles{length};
-		$self->{train}{name} = $vehicles{name};
+	#Vehicle Type and length are mandatory parameters
+	if ( !defined $type ) { 
+		croak("Train type not specified!");
+	} elsif ( $type !~ /passenger|freight/gi ) {
+		croak("Train type $type invalid, must be passenger|freight!"); 
+	} elsif ( !defined $length ) { 
+		croak("Train length not specified!");
+	} elsif ( $length > $max_length ) {
+		croak("WARNING! $self->get_name() is a $self->get_size() locomotive, please look for a bigger train!")
+	} else  {
+		say "INFO: Attaching train to engine $self->get_name!";
+		$self->{train}{length} = $length;
+		$self->{train}{type} = $type;
+
+		if ( !defined $name ) {
+			carp("WARNING: No name for train!");
+		} else { 
+			$self->{train}{name} = $name;
+		}
 	}
 }
 
@@ -142,13 +155,16 @@ sub couple_train {
 sub as_string {
 	my $self = shift;
 	my $as_string = '';
-	my @properties = qw/name id size type/;
+	my @properties = qw/name id size type max_length/;
 	foreach my $p ( @properties ) {
-		$as_string .= sprintf "%-14s - %s\n", ucfirts($p), $self->{$p};
+		$as_string .= sprintf "%-14s - %s\n", ucfirst( $p ), $self->{$p};
 	}
-	my %train = $self->get_train_info();
-	foreach ( keys %train ) { 
-		$as_string .= sprintf "%-14s - %s\n", ucfirst($_), $train{$_};
+	my $train = $self->get_train_info();
+	if (defined $train ) { 
+		$as_string .= sprintf "%2s%s\n", '',"Attached train:";
+		foreach ( keys %$train ) { 
+			$as_string .= sprintf "%6s%s - %s\n", '', ucfirst( $_ ), $train->{$_};
+		}
 	}
 	return $as_string;
 }
