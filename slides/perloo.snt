@@ -1,0 +1,53 @@
+Object Oriented Perl - an introduction
+Csaba Simándi
+2023
+
+Programing paradigms:
+- Procedural (Bash, Powershell, Perl)
+- OOP (Java, Ruby, C#)
+- Functional (Haskell, Erlang, Clojure)
+- Symbolic (Prolog)
+
+OOP
+Object represents a 'thing' -> realization
+Class is a blueprint for an object -> Abstraction
+
+4 pillars of OOP
+Abstraction
+Inheritance
+Encapsulation
+Polymorphism
+
+Example:
+Table - as an abstraction of the real world thing
+
+The noun table can represent a kitchen table, a workbench or an office desk
+The realization depends on context, usage, attributes, etc.
+
+OOP in Perl
+Slightly different from other OO languages
+Rules:
+A class is a package
+An object is a reference that knows it’s class
+A method is a subroutine.
+
+A class is a package
+Blueprint for the object
+Noun: 	city -> Object – proper noun - Paris
+
+An object is a reference that know's it's class
+“Bless” the reference into the class
+OBJECT = bless REFERENCE, CLASSNAME;
+Bless builtin tells the reference, that it belongs to a class.
+
+A method is a subroutine
+Constuctor
+new() method to construct object -> instantiation
+Getter/setter or accessor/mutator
+The 2 can be combined
+
+
+Train::Enging::Steam->new(%args_for)
+my $thomas->couple( train => 2 );"
+$thomas->get_color();
+
